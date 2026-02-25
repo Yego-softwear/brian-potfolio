@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Brian Kipngetich — Software & Game Developer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #050709;
+      --surface: #0A0D12;
+      --card: #0F1419;
+      --card2: #141B22;
+      --border: rgba(255,255,255,0.06);
+      --border-bright: rgba(255,255,255,0.1);
+      --accent: #00FFB2;
+      --accent2: #7B61FF;
+      --accent3: #FF6B35;
+      --text: #E8EDF4;
+      --muted: #5A6878;
+      --muted2: #8A9BB0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: 0.4;
+    }
+
+    /* Blobs */
+    .blob { position: fixed; border-radius: 50%; filter: blur(160px); pointer-events: none; z-index: 0; }
+    .blob-1 { width: 600px; height: 600px; background: var(--accent); top: -200px; right: -100px; opacity: 0.055; }
+    .blob-2 { width: 500px; height: 500px; background: var(--accent2); bottom: -100px; left: -100px; opacity: 0.07; }
+    .blob-3 { width: 350px; height: 350px; background: var(--accent3); top: 40%; left: 40%; opacity: 0.04; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 16px 48px;
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(5,7,9,0.8);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 1.1rem; color: var(--text); text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 36px; align-items: center; }
+    .nav-links a { color: var(--muted2); font-size: 0.88rem; text-decoration: none; transition: color 0.2s; font-weight: 500; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-hire {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+      font-size: 0.85rem; padding: 9px 22px;
+      border-radius: 100px; text-decoration: none;
+      transition: all 0.25s;
+    }
+    .nav-hire:hover { background: var(--accent); color: #000; box-shadow: 0 0 30px rgba(0,255,178,0.3); }
+
+    section { position: relative; z-index: 1; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 120px 48px 80px;
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(0,255,178,0.07);
+      border: 1px solid rgba(0,255,178,0.18);
+      border-radius: 100px; padding: 6px 16px;
+      font-size: 0.78rem; font-weight: 500; color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 32px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-tag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.5)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: clamp(3rem, 6vw, 6.5rem);
+      line-height: 1.0; letter-spacing: -2px;
+      margin-bottom: 12px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+    .hero h1 .name-first { color: var(--text); }
+    .hero h1 .name-last { color: var(--accent); }
+
+    .hero-role {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+      color: var(--accent2);
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s 0.15s ease both;
+    }
+    .hero-role::before { content: '// '; color: var(--muted); }
+
+    .hero-desc {
+      font-size: clamp(1rem, 1.6vw, 1.15rem);
+      color: var(--muted2); max-width: 560px;
+      line-height: 1.75; font-weight: 400;
+      margin-bottom: 44px;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .hero-ctas {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      animation: fadeUp 0.6s 0.25s ease both;
+    }
+    .btn-primary {
+      background: var(--accent); color: #000;
+      font-weight: 700; font-size: 0.9rem;
+      padding: 14px 32px; border-radius: 100px;
+      text-decoration: none; transition: all 0.25s;
+      box-shadow: 0 0 30px rgba(0,255,178,0.2);
+    }
+    .btn-primary:hover { box-shadow: 0 0 50px rgba(0,255,178,0.4); transform: translateY(-2px); }
+    .btn-outline {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border-bright);
+      font-weight: 600; font-size: 0.9rem;
+      padding: 14px 32px; border-radius: 100px;
+      text-decoration: none; transition: all 0.25s;
+    }
+    .btn-outline:hover { border-color: var(--muted2); background: var(--card); }
+
+    /* Stats strip */
+    .stats-strip {
+      width: 100%; max-width: 1200px; margin: 0 auto;
+      padding: 0 48px 80px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+      background: var(--border);
+      border-top: 1px solid var(--border);
+      animation: fadeUp 0.6s 0.35s ease both;
+    }
+    .stat-item {
+      background: var(--bg);
+      padding: 28px 32px;
+    }
+    .stat-num {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 2.2rem; color: var(--accent);
+      line-height: 1;
+    }
+    .stat-label { font-size: 0.82rem; color: var(--muted); margin-top: 6px; font-weight: 400; }
+
+    /* SECTIONS COMMON */
+    .section-wrap { max-width: 1200px; margin: 0 auto; padding: 100px 48px; }
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem; color: var(--accent);
+      letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      letter-spacing: -1px; line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 1rem; color: var(--muted2);
+      max-width: 500px; line-height: 1.7;
+    }
+
+    /* SKILLS */
+    .skills-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+    .skills-grid {
+      margin-top: 56px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2px;
+      background: var(--border);
+    }
+    .skill-group {
+      background: var(--bg);
+      padding: 32px;
+      transition: background 0.2s;
+    }
+    .skill-group:hover { background: var(--card); }
+    .skill-group-icon {
+      font-size: 1.8rem; margin-bottom: 16px;
+    }
+    .skill-group-title {
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 1.05rem; margin-bottom: 12px;
+      color: var(--text);
+    }
+    .skill-group-title span { color: var(--accent); }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .skill-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; font-weight: 500;
+      padding: 5px 12px; border-radius: 6px;
+      background: var(--card2); border: 1px solid var(--border);
+      color: var(--muted2); transition: all 0.2s;
+    }
+    .skill-tag.accent { color: var(--accent); border-color: rgba(0,255,178,0.2); background: rgba(0,255,178,0.05); }
+    .skill-tag.purple { color: var(--accent2); border-color: rgba(123,97,255,0.2); background: rgba(123,97,255,0.05); }
+    .skill-tag.orange { color: var(--accent3); border-color: rgba(255,107,53,0.2); background: rgba(255,107,53,0.05); }
+
+    /* ABOUT */
+    .about-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+    }
+    .about-visual {
+      position: relative;
+    }
+    .about-code-card {
+      background: var(--card);
+      border: 1px solid var(--border-bright);
+      border-radius: 16px;
+      padding: 28px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.8;
+    }
+    .code-comment { color: var(--muted); }
+    .code-key { color: var(--accent2); }
+    .code-val { color: var(--accent); }
+    .code-str { color: #FFB86C; }
+    .code-bracket { color: var(--muted2); }
+    .about-card-glow {
+      position: absolute; inset: -20px;
+      background: radial-gradient(ellipse at center, rgba(0,255,178,0.06) 0%, transparent 70%);
+      border-radius: 30px; pointer-events: none; z-index: -1;
+    }
+    .about-text h2 { margin-bottom: 20px; }
+    .about-text p { color: var(--muted2); line-height: 1.8; margin-bottom: 16px; font-size: 0.97rem; }
+
+    /* SPECIALIZATIONS */
+    .spec-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .spec-grid {
+      margin-top: 56px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    }
+    .spec-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 30px;
+      transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    .spec-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .spec-card:hover { border-color: rgba(0,255,178,0.15); transform: translateY(-4px); }
+    .spec-card:hover::before { opacity: 1; }
+    .spec-card.purple::before { background: linear-gradient(90deg, transparent, var(--accent2), transparent); }
+    .spec-card.purple:hover { border-color: rgba(123,97,255,0.2); }
+    .spec-card.orange::before { background: linear-gradient(90deg, transparent, var(--accent3), transparent); }
+    .spec-card.orange:hover { border-color: rgba(255,107,53,0.2); }
+
+    .spec-icon { font-size: 2.2rem; margin-bottom: 20px; }
+    .spec-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 12px; }
+    .spec-desc { color: var(--muted2); font-size: 0.88rem; line-height: 1.7; }
+
+    /* PROJECTS */
+    .projects-grid {
+      margin-top: 56px;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+    }
+    .project-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      transition: all 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .project-card:hover { border-color: var(--border-bright); transform: translateY(-3px); }
+    .project-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .project-type {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; padding: 4px 12px;
+      border-radius: 100px; font-weight: 500;
+    }
+    .project-type.game { background: rgba(255,107,53,0.1); color: var(--accent3); border: 1px solid rgba(255,107,53,0.2); }
+    .project-type.app { background: rgba(0,255,178,0.08); color: var(--accent); border: 1px solid rgba(0,255,178,0.2); }
+    .project-type.tool { background: rgba(123,97,255,0.08); color: var(--accent2); border: 1px solid rgba(123,97,255,0.2); }
+    .project-icon { font-size: 1.6rem; }
+    .project-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.2rem; margin-bottom: 10px; }
+    .project-desc { color: var(--muted2); font-size: 0.88rem; line-height: 1.65; margin-bottom: 20px; }
+    .project-stack { display: flex; flex-wrap: wrap; gap: 8px; }
+    .project-tech {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--card2); color: var(--muted2);
+      border: 1px solid var(--border);
+    }
+
+    /* CONTACT */
+    .contact-section { background: var(--surface); border-top: 1px solid var(--border); }
+    .contact-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+    }
+    .contact-form {
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .form-field {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .form-field:focus { border-color: rgba(0,255,178,0.3); }
+    .form-field::placeholder { color: var(--muted); }
+    textarea.form-field { resize: vertical; min-height: 120px; }
+    .form-submit {
+      background: var(--accent); color: #000;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 0.9rem;
+      padding: 15px 36px; border-radius: 100px;
+      border: none; cursor: pointer;
+      transition: all 0.25s; align-self: flex-start;
+      box-shadow: 0 0 20px rgba(0,255,178,0.15);
+    }
+    .form-submit:hover { box-shadow: 0 0 40px rgba(0,255,178,0.35); transform: translateY(-2px); }
+
+    .contact-info h2 { margin-bottom: 20px; }
+    .contact-info p { color: var(--muted2); line-height: 1.75; margin-bottom: 32px; font-size: 0.97rem; }
+    .contact-channels { display: flex; flex-direction: column; gap: 14px; }
+    .contact-channel {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .contact-channel:hover { border-color: var(--border-bright); background: var(--card2); }
+    .ch-icon { font-size: 1.2rem; }
+    .ch-label { font-size: 0.82rem; color: var(--muted); }
+    .ch-value { font-size: 0.92rem; color: var(--text); font-weight: 500; }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 36px 48px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    footer span { color: var(--accent); }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      nav { padding: 14px 24px; }
+      .nav-links { display: none; }
+      .hero { padding: 100px 24px 60px; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr); padding: 0 24px 60px; }
+      .section-wrap { padding: 70px 24px; }
+      .about-inner, .contact-inner { grid-template-columns: 1fr; gap: 40px; }
+      .spec-grid { grid-template-columns: 1fr; }
+      .projects-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">Brian<span>.dev</span></a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#projects">Projects</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#contact" class="nav-hire">Hire Me →</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-tag">
+      <span class="hero-tag-dot"></span>
+      Available for opportunities
+    </div>
+    <h1>
+      <div class="name-first">Brian</div>
+      <div class="name-last">Kipngetich</div>
+    </h1>
+    <div class="hero-role">Software Developer & Game Developer</div>
+    <p class="hero-desc">
+      Building immersive game experiences and robust software applications. 
+      Passionate about turning ideas into interactive worlds and scalable systems 
+      that make a real difference.
+    </p>
+    <div class="hero-ctas">
+      <a href="#projects" class="btn-primary">View My Work</a>
+      <a href="#contact" class="btn-outline">Get in Touch</a>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-strip">
+    <div class="stat-item">
+      <div class="stat-num">3+</div>
+      <div class="stat-label">Years of Experience</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">20+</div>
+      <div class="stat-label">Projects Completed</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">10+</div>
+      <div class="stat-label">Technologies Mastered</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Lines of Code Written</div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-wrap">
+      <div class="about-inner">
+        <div class="about-visual">
+          <div class="about-card-glow"></div>
+          <div class="about-code-card">
+            <div class="code-comment">// developer.profile</div>
+            <br/>
+            <span class="code-key">const</span> <span class="code-val">brian</span> = <span class="code-bracket">{</span>
+            <br/>
+            &nbsp;&nbsp;<span class="code-key">name</span>: <span class="code-str">"Brian Kipngetich"</span>,
+            <br/>
+            &nbsp;&nbsp;<span class="code-key">role</span>: <span class="code-str">"Software & Game Developer"</span>,
+            <br/>
+            &nbsp;&nbsp;<span class="code-key">location</span>: <span class="code-str">"Kenya 🇰🇪"</span>,
+            <br/>
+            &nbsp;&nbsp;<span class="code-key">passion</span>: <span class="code-str">"Building worlds"</span>,
+            <br/>
+            &nbsp;&nbsp;<span class="code-key">primaryLang</span>: <span class="code-str">"Python"</span>,
+            <br/>
+            &nbsp;&nbsp;<span class="code-key">gameEngine</span>: <span class="code-str">"Unity / Unreal"</span>,
+            <br/>
+            &nbsp;&nbsp;<span class="code-key">available</span>: <span class="code-val">true</span>,
+            <br/>
+            <span class="code-bracket">}</span>
+            <br/><br/>
+            <span class="code-comment">// Let's build something great.</span>
+          </div>
+        </div>
+        <div class="about-text">
+          <p class="section-label">About Me</p>
+          <h2 class="section-title">Code meets creativity</h2>
+          <p>I'm Brian Kipngetich, a passionate software and game developer with a love for crafting digital experiences that engage, inspire, and solve real problems. My journey spans from writing elegant backend systems to designing interactive game worlds.</p>
+          <p>Whether it's architecting scalable applications with Python, building immersive 3D environments in Unity, or engineering smooth gameplay mechanics, I bring both technical precision and creative vision to every project.</p>
+          <p style="margin-bottom: 0;">I'm driven by the belief that great software — whether a game or a business tool — should feel effortless to the user, even when it's complex underneath.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" class="skills-section">
+    <div class="section-wrap">
+      <p class="section-label">Technical Arsenal</p>
+      <h2 class="section-title">Skills & Technologies</h2>
+      <p class="section-sub">A comprehensive toolkit spanning game development, software engineering, and everything in between.</p>
+
+      <div class="skills-grid">
+
+        <div class="skill-group">
+          <div class="skill-group-icon">🐍</div>
+          <div class="skill-group-title">Python <span>Development</span></div>
+          <p style="color:var(--muted2);font-size:0.84rem;line-height:1.6">Backend systems, automation, data processing, and scripting with Python's rich ecosystem.</p>
+          <div class="skill-tags">
+            <span class="skill-tag accent">Python 3.x</span>
+            <span class="skill-tag accent">Django</span>
+            <span class="skill-tag accent">Flask</span>
+            <span class="skill-tag accent">FastAPI</span>
+            <span class="skill-tag accent">NumPy</span>
+            <span class="skill-tag accent">Pygame</span>
+            <span class="skill-tag accent">SQLAlchemy</span>
+            <span class="skill-tag accent">REST APIs</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-icon">🎮</div>
+          <div class="skill-group-title">Game <span>Development</span></div>
+          <p style="color:var(--muted2);font-size:0.84rem;line-height:1.6">Creating engaging games from concept to launch — mechanics, rendering, and player experience.</p>
+          <div class="skill-tags">
+            <span class="skill-tag orange">Unity</span>
+            <span class="skill-tag orange">Unreal Engine</span>
+            <span class="skill-tag orange">Godot</span>
+            <span class="skill-tag orange">C# (Unity)</span>
+            <span class="skill-tag orange">C++</span>
+            <span class="skill-tag orange">Blueprints</span>
+            <span class="skill-tag orange">Pygame</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-icon">🧩</div>
+          <div class="skill-group-title">Game Design <span>Fundamentals</span></div>
+          <p style="color:var(--muted2);font-size:0.84rem;line-height:1.6">Core principles of designing compelling, balanced, and fun game systems and experiences.</p>
+          <div class="skill-tags">
+            <span class="skill-tag orange">Game Mechanics</span>
+            <span class="skill-tag orange">Level Design</span>
+            <span class="skill-tag orange">Physics Systems</span>
+            <span class="skill-tag orange">AI Pathfinding</span>
+            <span class="skill-tag orange">Collision Detection</span>
+            <span class="skill-tag orange">Animation FSM</span>
+            <span class="skill-tag orange">Game Loop</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-icon">🎨</div>
+          <div class="skill-group-title">Game Art & <span>Graphics</span></div>
+          <p style="color:var(--muted2);font-size:0.84rem;line-height:1.6">Visual systems, shaders, and rendering pipelines for polished game visuals.</p>
+          <div class="skill-tags">
+            <span class="skill-tag orange">Shader Programming</span>
+            <span class="skill-tag orange">HLSL / GLSL</span>
+            <span class="skill-tag orange">Sprite Animation</span>
+            <span class="skill-tag orange">3D Modeling (Blender)</span>
+            <span class="skill-tag orange">UV Mapping</span>
+            <span class="skill-tag orange">Particle Systems</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-icon">💻</div>
+          <div class="skill-group-title">Software <span>Development</span></div>
+          <p style="color:var(--muted2);font-size:0.84rem;line-height:1.6">Full-cycle application development using modern tools, patterns, and best practices.</p>
+          <div class="skill-tags">
+            <span class="skill-tag">OOP</span>
+            <span class="skill-tag">Data Structures</span>
+            <span class="skill-tag">Algorithms</span>
+            <span class="skill-tag">Design Patterns</span>
+            <span class="skill-tag">SOLID Principles</span>
+            <span class="skill-tag">Agile / Scrum</span>
+            <span class="skill-tag">TDD</span>
+            <span class="skill-tag">CI/CD</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-icon">🌐</div>
+          <div class="skill-group-title">Web & <span>Frontend</span></div>
+          <p style="color:var(--muted2);font-size:0.84rem;line-height:1.6">Modern web development for building interfaces and connecting software to the browser.</p>
+          <div class="skill-tags">
+            <span class="skill-tag">HTML / CSS</span>
+            <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">React</span>
+            <span class="skill-tag">TypeScript</span>
+            <span class="skill-tag">Node.js</span>
+            <span class="skill-tag">REST APIs</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-icon">🗄️</div>
+          <div class="skill-group-title">Databases & <span>Backend</span></div>
+          <p style="color:var(--muted2);font-size:0.84rem;line-height:1.6">Designing, managing, and querying databases for both games and applications.</p>
+          <div class="skill-tags">
+            <span class="skill-tag purple">PostgreSQL</span>
+            <span class="skill-tag purple">MySQL</span>
+            <span class="skill-tag purple">SQLite</span>
+            <span class="skill-tag purple">MongoDB</span>
+            <span class="skill-tag purple">Firebase</span>
+            <span class="skill-tag purple">Redis</span>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-icon">🔧</div>
+          <div class="skill-group-title">Tools & <span>DevOps</span></div>
+          <p style="color:var(--muted2);font-size:0.84rem;line-height:1.6">The infrastructure and tooling that keeps codebases healthy and deployments smooth.</p>
+          <div class="skill-tags">
+            <span class="skill-tag">Git / GitHub</span>
+            <span class="skill-tag">Docker</span>
+            <span class="skill-tag">Linux</span>
+            <span class="skill-tag">VS Code</span>
+            <span class="skill-tag">Jira</span>
+            <span class="skill-tag">Trello</span>
+            <span class="skill-tag">Figma</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SPECIALIZATIONS -->
+  <section id="specializations">
+    <div class="section-wrap">
+      <p class="section-label">What I Do Best</p>
+      <h2 class="section-title">Core Specializations</h2>
+
+      <div class="spec-grid">
+        <div class="spec-card orange">
+          <div class="spec-icon">🎮</div>
+          <div class="spec-title">Game Development</div>
+          <p class="spec-desc">From 2D platformers to 3D open worlds — I design and code games that are fun, polished, and technically sound. Unity, Unreal, Godot, and custom engines.</p>
+        </div>
+        <div class="spec-card">
+          <div class="spec-icon">🐍</div>
+          <div class="spec-title">Python Engineering</div>
+          <p class="spec-desc">Backend APIs, automation scripts, data pipelines, and desktop applications. Python is my native tongue for turning ideas into working software fast.</p>
+        </div>
+        <div class="spec-card purple">
+          <div class="spec-icon">🏗️</div>
+          <div class="spec-title">Software Architecture</div>
+          <p class="spec-desc">Designing scalable, maintainable systems using clean code principles, design patterns, and modern software engineering practices for long-lived applications.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects" style="background:var(--surface); border-top:1px solid var(--border);">
+    <div class="section-wrap">
+      <p class="section-label">Portfolio</p>
+      <h2 class="section-title">Featured Projects</h2>
+      <p class="section-sub">A selection of games and software I've built — each one a new challenge conquered.</p>
+
+      <div class="projects-grid">
+
+        <div class="project-card">
+          <div class="project-top">
+            <div class="project-icon">🌍</div>
+            <span class="project-type game">Game</span>
+          </div>
+          <div class="project-title">Open World RPG</div>
+          <p class="project-desc">A 3D open-world RPG built in Unity featuring procedural terrain generation, dynamic AI enemies, inventory system, and cinematic camera controls.</p>
+          <div class="project-stack">
+            <span class="project-tech">Unity</span>
+            <span class="project-tech">C#</span>
+            <span class="project-tech">HLSL</span>
+            <span class="project-tech">Blender</span>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-top">
+            <div class="project-icon">🛠️</div>
+            <span class="project-type app">App</span>
+          </div>
+          <div class="project-title">Task Management API</div>
+          <p class="project-desc">A RESTful API backend built with Django and PostgreSQL. Features JWT auth, role-based permissions, and full CRUD for team task management.</p>
+          <div class="project-stack">
+            <span class="project-tech">Python</span>
+            <span class="project-tech">Django</span>
+            <span class="project-tech">PostgreSQL</span>
+            <span class="project-tech">Docker</span>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-top">
+            <div class="project-icon">👾</div>
+            <span class="project-type game">Game</span>
+          </div>
+          <div class="project-title">2D Platformer</div>
+          <p class="project-desc">A hand-crafted 2D platformer with pixel art aesthetics, smooth physics, combo-based combat, and boss fights. Built using Pygame with a custom entity-component system.</p>
+          <div class="project-stack">
+            <span class="project-tech">Python</span>
+            <span class="project-tech">Pygame</span>
+            <span class="project-tech">Tiled</span>
+            <span class="project-tech">Aseprite</span>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-top">
+            <div class="project-icon">📊</div>
+            <span class="project-type tool">Tool</span>
+          </div>
+          <div class="project-title">Data Dashboard</div>
+          <p class="project-desc">A real-time analytics dashboard built with FastAPI and React. Connects to multiple data sources, visualizes KPIs, and exports reports in PDF/CSV.</p>
+          <div class="project-stack">
+            <span class="project-tech">Python</span>
+            <span class="project-tech">FastAPI</span>
+            <span class="project-tech">React</span>
+            <span class="project-tech">PostgreSQL</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact-section">
+    <div class="section-wrap">
+      <div class="contact-inner">
+        <div class="contact-info">
+          <p class="section-label">Get In Touch</p>
+          <h2 class="section-title">Let's build something great</h2>
+          <p>Whether you need a talented game developer, a reliable backend engineer, or a full-stack software developer — I'm open to freelance projects, collaborations, and full-time opportunities.</p>
+          <div class="contact-channels">
+            <div class="contact-channel">
+              <span class="ch-icon">🐙</span>
+              <div>
+                <div class="ch-label">GitHub</div>
+                <div class="ch-value">github.com/briankipngetich</div>
+              </div>
+            </div>
+            <div class="contact-channel">
+              <span class="ch-icon">📍</span>
+              <div>
+                <div class="ch-label">Location</div>
+                <div class="ch-value">Kenya 🇰🇪</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <form class="contact-form" onsubmit="handleContact(event)">
+            <input class="form-field" type="text" placeholder="Your Name" required />
+            <input class="form-field" type="text" placeholder="Subject" required />
+            <textarea class="form-field" placeholder="Tell me about your project..." required></textarea>
+            <button type="submit" class="form-submit" id="contactBtn">Send Message →</button>
+            <div id="contactSuccess" style="display:none; color:var(--accent); font-size:0.9rem; padding-top:8px;">✓ Message sent! I'll be in touch soon.</div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 <span>Brian Kipngetich</span> · Software & Game Developer · Built with passion 🚀</p>
+  </footer>
+
+  <script>
+    function handleContact(e) {
+      e.preventDefault();
+      const btn = document.getElementById('contactBtn');
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      setTimeout(() => {
+        e.target.reset();
+        btn.style.display = 'none';
+        document.getElementById('contactSuccess').style.display = 'block';
+      }, 1200);
+    }
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Intersection observer for fade-in
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.skill-group, .spec-card, .project-card').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
